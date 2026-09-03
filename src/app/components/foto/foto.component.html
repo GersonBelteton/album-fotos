@@ -1,0 +1,221 @@
+<div class="photo-container">
+
+  <div class="photo-card">
+
+    <div class="header">
+
+      <h1>📸 Cargar fotografía</h1>
+
+      <p>
+        Toma una fotografía o selecciónala desde tu galería.
+      </p>
+
+    </div>
+
+
+    <!-- ============================= -->
+    <!-- CÁMARA -->
+    <!-- ============================= -->
+
+    <div
+      class="camera-container"
+      *ngIf="cameraActive"
+    >
+
+      <video
+        #video
+        autoplay
+        playsinline
+        muted
+      ></video>
+
+      <div class="camera-overlay">
+
+        <div class="camera-frame"></div>
+
+      </div>
+
+    </div>
+
+
+    <!-- ============================= -->
+    <!-- CANVAS OCULTO -->
+    <!-- ============================= -->
+
+    <canvas
+      #canvas
+      class="hidden-canvas"
+    ></canvas>
+
+
+    <!-- ============================= -->
+    <!-- VISTA PREVIA -->
+    <!-- ============================= -->
+
+    <div
+      class="preview-container"
+      *ngIf="imagePreview && !cameraActive"
+    >
+
+      <img
+        [src]="imagePreview"
+        alt="Vista previa"
+        class="preview-image"
+      />
+
+    </div>
+
+
+    <!-- ============================= -->
+    <!-- BOTONES -->
+    <!-- ============================= -->
+
+    <div class="actions">
+
+      <!-- Abrir cámara -->
+
+      <button
+        *ngIf="!cameraActive"
+        type="button"
+        class="btn btn-primary"
+        (click)="startCamera()"
+        [disabled]="uploading"
+      >
+
+        📷
+        <span>Tomar fotografía</span>
+
+      </button>
+
+
+      <!-- Tomar foto -->
+
+      <button
+        *ngIf="cameraActive"
+        type="button"
+        class="btn btn-success"
+        (click)="capturePhoto()"
+      >
+
+        📸
+        <span>Capturar fotografía</span>
+
+      </button>
+
+
+      <!-- Galería -->
+
+      <label
+        class="btn btn-secondary"
+        [class.disabled]="uploading"
+      >
+
+        🖼️
+        <span>Seleccionar de galería</span>
+
+        <input
+          type="file"
+          accept="image/*"
+          (change)="onFileSelected($event)"
+          [disabled]="uploading"
+          hidden
+        />
+
+      </label>
+
+
+      <!-- Reiniciar -->
+
+      <button
+        *ngIf="imagePreview && !uploading"
+        type="button"
+        class="btn btn-outline"
+        (click)="reset()"
+      >
+
+        🔄
+        <span>Nueva fotografía</span>
+
+      </button>
+
+    </div>
+
+
+    <!-- ============================= -->
+    <!-- ESTADO DE SUBIDA -->
+    <!-- ============================= -->
+
+    <div
+      class="upload-status"
+      *ngIf="uploading"
+    >
+
+      <div class="spinner"></div>
+
+      <p>
+        Subiendo fotografía a Cloudinary...
+      </p>
+
+    </div>
+
+
+    <!-- ============================= -->
+    <!-- MENSAJE ÉXITO -->
+    <!-- ============================= -->
+
+    <div
+      class="message success-message"
+      *ngIf="message"
+    >
+
+      ✅ {{ message }}
+
+    </div>
+
+
+    <!-- ============================= -->
+    <!-- ERROR -->
+    <!-- ============================= -->
+
+    <div
+      class="message error-message"
+      *ngIf="errorMessage"
+    >
+
+      ⚠️ {{ errorMessage }}
+
+    </div>
+
+
+    <!-- ============================= -->
+    <!-- URL RESULTANTE -->
+    <!-- ============================= -->
+
+    <div
+      class="result"
+      *ngIf="uploadedImageUrl"
+    >
+
+      <h3>Imagen almacenada</h3>
+
+      <a
+        [href]="uploadedImageUrl"
+        target="_blank"
+        rel="noopener"
+      >
+
+        Ver fotografía
+
+      </a>
+
+      <div class="url-box">
+
+        {{ uploadedImageUrl }}
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
