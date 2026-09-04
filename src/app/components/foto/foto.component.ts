@@ -1,12 +1,10 @@
-
-////////////////////////////
-
 import {
   Component,
   ElementRef,
   OnDestroy,
   ViewChild
 } from '@angular/core';
+
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -16,11 +14,16 @@ import { CommonModule } from '@angular/common';
 })
 export class FotoComponent implements OnDestroy {
 
+  // ==========================================
+  // ELEMENTOS HTML
+  // ==========================================
+
   @ViewChild('video')
   video!: ElementRef<HTMLVideoElement>;
 
   @ViewChild('canvas')
   canvas!: ElementRef<HTMLCanvasElement>;
+
 
   // ==========================================
   // CONFIGURACIÓN CLOUDINARY
@@ -31,6 +34,7 @@ export class FotoComponent implements OnDestroy {
   uploadPreset = 'album-fotos';
 
   folder = 'mi-aplicacion/fotos';
+
 
   // ==========================================
   // ESTADO
@@ -46,11 +50,14 @@ export class FotoComponent implements OnDestroy {
 
   cameraActive = false;
 
+  cameraReady = false;
+
   uploading = false;
 
   message = '';
 
   errorMessage = '';
+
 
   // ==========================================
   // ACTIVAR CÁMARA
@@ -60,30 +67,87 @@ export class FotoComponent implements OnDestroy {
 
     this.clearMessages();
 
+    this.cameraReady = false;
+
     try {
 
-      this.stream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          facingMode: 'environment'
-        },
-        audio: false
-      });
+      // Si ya existe una cámara activa,
+      // primero la detenemos.
+      this.stopCamera();
+
+      this.stream =
+        await navigator.mediaDevices.getUserMedia({
+
+          video: {
+            facingMode: 'environment'
+          },
+
+          audio: false
+
+        });
+
 
       this.cameraActive = true;
 
+
+      // Esperamos a que Angular renderice
+      // nuevamente el elemento <video>.
       setTimeout(() => {
 
-        if (this.video) {
-
-          this.video.nativeElement.srcObject = this.stream;
-
+        if (!this.video) {
+          return;
         }
+
+        const videoElement =
+          this.video.nativeElement;
+
+        videoElement.srcObject =
+          this.stream;
+
+
+        // Esperamos a que el navegador
+        // tenga realmente disponible el video.
+        videoElement.onloadedmetadata =
+          async () => {
+
+            try {
+
+              await videoElement.play();
+
+              console.log(
+                'Cámara lista:',
+                videoElement.videoWidth,
+                videoElement.videoHeight
+              );
+
+              this.cameraReady = true;
+
+            } catch (error) {
+
+              console.error(
+                'Error al iniciar reproducción:',
+                error
+              );
+
+              this.errorMessage =
+                'No fue posible iniciar la cámara.';
+
+            }
+
+          };
 
       });
 
     } catch (error) {
 
-      console.error(error);
+      console.error(
+        'Error al acceder a la cámara:',
+        error
+      );
+
+      this.cameraActive = false;
+
+      this.cameraReady = false;
 
       this.errorMessage =
         'No fue posible acceder a la cámara. Verifica los permisos del navegador.';
@@ -92,27 +156,92 @@ export class FotoComponent implements OnDestroy {
 
   }
 
+
   // ==========================================
   // TOMAR FOTO
   // ==========================================
 
-  capturePhoto(): void {
+  async capturePhoto(): Promise<void> {
+
+    this.clearMessages();
+
+
+    // ==========================================
+    // VALIDAR CÁMARA
+    // ==========================================
+
+    if (!this.cameraReady) {
+
+      this.errorMessage =
+        'La cámara todavía no está lista.';
+
+      return;
+
+    }
+
 
     if (!this.video || !this.canvas) {
+
+      this.errorMessage =
+        'No fue posible acceder a la cámara.';
+
       return;
+
     }
 
-    const video = this.video.nativeElement;
-    const canvas = this.canvas.nativeElement;
 
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
+    const video =
+      this.video.nativeElement;
 
-    const context = canvas.getContext('2d');
+    const canvas =
+      this.canvas.nativeElement;
+
+
+    // ==========================================
+    // VALIDAR DIMENSIONES DEL VIDEO
+    // ==========================================
+
+    if (
+      video.videoWidth === 0 ||
+      video.videoHeight === 0
+    ) {
+
+      this.errorMessage =
+        'La cámara todavía no tiene una imagen disponible.';
+
+      return;
+
+    }
+
+
+    // ==========================================
+    // CONFIGURAR CANVAS
+    // ==========================================
+
+    canvas.width =
+      video.videoWidth;
+
+    canvas.height =
+      video.videoHeight;
+
+
+    const context =
+      canvas.getContext('2d');
+
 
     if (!context) {
+
+      this.errorMessage =
+        'No fue posible procesar la fotografía.';
+
       return;
+
     }
+
+
+    // ==========================================
+    // CAPTURAR FRAME
+    // ==========================================
 
     context.drawImage(
       video,
@@ -122,54 +251,126 @@ export class FotoComponent implements OnDestroy {
       canvas.height
     );
 
-    canvas.toBlob(
-      (blob) => {
 
-        if (!blob) {
-          return;
-        }
+    // ==========================================
+    // CONVERTIR CANVAS A BLOB
+    // ==========================================
 
-        const file = new File(
-          [blob],
-          `foto-${Date.now()}.jpg`,
-          {
-            type: 'image/jpeg'
-          }
+    const blob =
+      await new Promise<Blob | null>((resolve) => {
+
+        canvas.toBlob(
+          (result) => {
+
+            resolve(result);
+
+          },
+          'image/jpeg',
+          0.90
         );
 
-        this.selectedFile = file;
+      });
 
-        this.imagePreview =
-          URL.createObjectURL(blob);
 
-        this.stopCamera();
+    // ==========================================
+    // VALIDAR BLOB
+    // ==========================================
 
-        // Subida automática
-        this.uploadToCloudinary(file);
+    if (!blob) {
 
-      },
-      'image/jpeg',
-      0.90
+      this.errorMessage =
+        'No fue posible generar la fotografía.';
+
+      return;
+
+    }
+
+
+    // ==========================================
+    // CREAR FILE
+    // ==========================================
+
+    const file =
+      new File(
+        [blob],
+        `foto-${Date.now()}.jpg`,
+        {
+          type: 'image/jpeg'
+        }
+      );
+
+
+    console.log(
+      'Fotografía creada:',
+      file
     );
+
+
+    // ==========================================
+    // GUARDAR ARCHIVO
+    // ==========================================
+
+    this.selectedFile =
+      file;
+
+
+    // ==========================================
+    // MOSTRAR VISTA PREVIA
+    // ==========================================
+
+    this.imagePreview =
+      URL.createObjectURL(blob);
+
+
+    // ==========================================
+    // DETENER CÁMARA
+    // ==========================================
+
+    this.stopCamera();
+
+
+    // ==========================================
+    // SUBIR A CLOUDINARY
+    // ESPERAMOS A QUE TERMINE
+    // ==========================================
+
+    await this.uploadToCloudinary(file);
 
   }
 
+
   // ==========================================
-  // SELECCIONAR IMAGEN
+  // SELECCIONAR IMAGEN DE GALERÍA
   // ==========================================
 
-  onFileSelected(event: Event): void {
+  async onFileSelected(
+    event: Event
+  ): Promise<void> {
 
     this.clearMessages();
+
 
     const input =
       event.target as HTMLInputElement;
 
-    if (!input.files || input.files.length === 0) {
+
+    if (
+      !input.files ||
+      input.files.length === 0
+    ) {
+
       return;
+
     }
 
-    const file = input.files[0];
+
+    const file =
+      input.files[0];
+
+
+    // ==========================================
+    // VALIDAR IMAGEN
+    // ==========================================
 
     if (!file.type.startsWith('image/')) {
 
@@ -180,21 +381,39 @@ export class FotoComponent implements OnDestroy {
 
     }
 
-    this.selectedFile = file;
+
+    // ==========================================
+    // GUARDAR ARCHIVO
+    // ==========================================
+
+    this.selectedFile =
+      file;
+
+
+    // ==========================================
+    // VISTA PREVIA
+    // ==========================================
 
     this.imagePreview =
       URL.createObjectURL(file);
 
-    // Subida automática
-    this.uploadToCloudinary(file);
+
+    // ==========================================
+    // SUBIR A CLOUDINARY
+    // ==========================================
+
+    await this.uploadToCloudinary(file);
 
   }
+
 
   // ==========================================
   // SUBIR A CLOUDINARY
   // ==========================================
 
-  async uploadToCloudinary(file: File): Promise<void> {
+  async uploadToCloudinary(
+    file: File
+  ): Promise<void> {
 
     this.clearMessages();
 
@@ -202,42 +421,71 @@ export class FotoComponent implements OnDestroy {
 
     this.uploadedImageUrl = null;
 
+
     const url =
       `https://api.cloudinary.com/v1_1/${this.cloudName}/image/upload`;
 
-    const formData = new FormData();
+
+    // ==========================================
+    // FORM DATA
+    // ==========================================
+
+    const formData =
+      new FormData();
+
 
     formData.append(
       'file',
       file
     );
 
+
     formData.append(
       'upload_preset',
       this.uploadPreset
     );
+
 
     formData.append(
       'folder',
       this.folder
     );
 
+
     try {
 
-      const response = await fetch(
-        url,
-        {
-          method: 'POST',
-          body: formData
-        }
+      console.log(
+        'Iniciando subida a Cloudinary...'
       );
+
+
+      // ==========================================
+      // ESPERAR RESPUESTA
+      // ==========================================
+
+      const response =
+        await fetch(
+          url,
+          {
+            method: 'POST',
+            body: formData
+          }
+        );
+
+
+      // ==========================================
+      // VALIDAR RESPUESTA
+      // ==========================================
 
       if (!response.ok) {
 
         const error =
           await response.text();
 
-        console.error(error);
+        console.error(
+          'Error Cloudinary:',
+          error
+        );
 
         throw new Error(
           'Error al subir la imagen.'
@@ -245,26 +493,44 @@ export class FotoComponent implements OnDestroy {
 
       }
 
+
+      // ==========================================
+      // OBTENER RESULTADO
+      // ==========================================
+
       const result =
         await response.json();
+
 
       console.log(
         'Respuesta Cloudinary:',
         result
       );
 
+
+      // ==========================================
+      // GUARDAR URL
+      // ==========================================
+
       this.uploadedImageUrl =
         result.secure_url;
+
 
       this.message =
         'La fotografía fue subida correctamente.';
 
+
     } catch (error) {
 
-      console.error(error);
+      console.error(
+        'Error al subir fotografía:',
+        error
+      );
+
 
       this.errorMessage =
         'No fue posible subir la fotografía a Cloudinary.';
+
 
     } finally {
 
@@ -273,6 +539,7 @@ export class FotoComponent implements OnDestroy {
     }
 
   }
+
 
   // ==========================================
   // DETENER CÁMARA
@@ -284,15 +551,30 @@ export class FotoComponent implements OnDestroy {
 
       this.stream
         .getTracks()
-        .forEach(track => track.stop());
+        .forEach(
+          track => track.stop()
+        );
 
       this.stream = null;
 
     }
 
+
+    // Limpiar srcObject
+    if (this.video) {
+
+      this.video.nativeElement.srcObject =
+        null;
+
+    }
+
+
     this.cameraActive = false;
 
+    this.cameraReady = false;
+
   }
+
 
   // ==========================================
   // REINICIAR
@@ -302,15 +584,28 @@ export class FotoComponent implements OnDestroy {
 
     this.stopCamera();
 
+
+    // Liberar URL anterior
+    if (this.imagePreview) {
+
+      URL.revokeObjectURL(
+        this.imagePreview
+      );
+
+    }
+
+
     this.imagePreview = null;
 
     this.uploadedImageUrl = null;
 
     this.selectedFile = null;
 
+
     this.clearMessages();
 
   }
+
 
   // ==========================================
   // LIMPIAR MENSAJES
@@ -324,6 +619,7 @@ export class FotoComponent implements OnDestroy {
 
   }
 
+
   // ==========================================
   // DESTRUIR COMPONENTE
   // ==========================================
@@ -331,6 +627,7 @@ export class FotoComponent implements OnDestroy {
   ngOnDestroy(): void {
 
     this.stopCamera();
+
 
     if (this.imagePreview) {
 

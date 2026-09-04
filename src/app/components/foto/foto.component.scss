@@ -1,363 +1,880 @@
-.photo-container {
-  min-height: 100vh;
+@import url('https://fonts.googleapis.com/css2?family=Great+Vibes&family=Montserrat:wght@300;400;500;600&display=swap');
 
-  display: flex;
-  justify-content: center;
-  align-items: center;
 
-  padding: 30px;
+/* ==========================================
+   VARIABLES
+========================================== */
 
-  background: #f5f7fa;
+$cream: #f8f4ee;
+$cream-dark: #efe8dc;
+
+$white: #ffffff;
+
+$gold: #b89a67;
+$gold-dark: #967846;
+
+$text: #4f493f;
+$text-light: #81796d;
+
+$border: #e5dac9;
+
+$success: #6c8b6e;
+$error: #a76565;
+
+
+/* ==========================================
+   CONTENEDOR GENERAL
+========================================== */
+
+.wedding-page {
+
+    min-height: 100vh;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 35px 20px;
+
+    background:
+        radial-gradient(circle at top,
+            rgba(255, 255, 255, 0.95),
+            transparent 45%),
+        linear-gradient(135deg,
+            $cream,
+            $cream-dark );
+
+    font-family:
+        'Montserrat',
+        sans-serif;
+
+    color: $text;
+
 }
+
+
+/* ==========================================
+   TARJETA
+========================================== */
 
 .photo-card {
-  width: 100%;
-  max-width: 650px;
 
-  background: white;
+    width: 100%;
 
-  border-radius: 16px;
+    max-width: 560px;
 
-  padding: 30px;
+    background: rgba(255, 255, 255, 0.96);
 
-  box-shadow:
-    0 10px 30px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(184, 154, 103, 0.35);
+
+    border-radius: 8px;
+
+    padding: 45px 40px;
+
+    position: relative;
+
+    box-shadow:
+        0 20px 60px rgba(78, 64, 45, 0.12);
+
 }
+
+
+/* Borde decorativo */
+
+.photo-card::before {
+
+    content: '';
+
+    position: absolute;
+
+    inset: 12px;
+
+    border: 1px solid rgba(184, 154, 103, 0.22);
+
+    pointer-events: none;
+
+}
+
+
+/* ==========================================
+   HEADER
+========================================== */
 
 .header {
-  text-align: center;
 
-  margin-bottom: 25px;
+    text-align: center;
 
-  h1 {
-    margin: 0 0 10px;
+    margin-bottom: 35px;
 
-    font-size: 28px;
-  }
-
-  p {
-    margin: 0;
-
-    color: #6b7280;
-
-    font-size: 15px;
-  }
 }
 
 
-// ==========================================
-// CÁMARA
-// ==========================================
+.rings {
 
-.camera-container {
-  position: relative;
+    font-size: 30px;
 
-  width: 100%;
+    margin-bottom: 12px;
 
-  overflow: hidden;
+}
 
-  border-radius: 12px;
 
-  background: #000;
-
-  margin-bottom: 20px;
-
-  video {
-    width: 100%;
+.eyebrow {
 
     display: block;
 
-    max-height: 500px;
+    font-size: 11px;
 
-    object-fit: cover;
-  }
-}
+    letter-spacing: 4px;
 
-.camera-overlay {
-  position: absolute;
-
-  inset: 0;
-
-  display: flex;
-
-  justify-content: center;
-
-  align-items: center;
-
-  pointer-events: none;
-}
-
-.camera-frame {
-  width: 80%;
-
-  height: 70%;
-
-  border: 2px solid rgba(255, 255, 255, 0.8);
-
-  border-radius: 10px;
-}
-
-
-// ==========================================
-// PREVIEW
-// ==========================================
-
-.preview-container {
-  width: 100%;
-
-  margin-bottom: 20px;
-
-  border-radius: 12px;
-
-  overflow: hidden;
-
-  background: #f1f1f1;
-
-  text-align: center;
-}
-
-.preview-image {
-  display: block;
-
-  width: 100%;
-
-  max-height: 500px;
-
-  object-fit: contain;
-}
-
-
-// ==========================================
-// BOTONES
-// ==========================================
-
-.actions {
-  display: flex;
-
-  flex-wrap: wrap;
-
-  gap: 12px;
-
-  justify-content: center;
-}
-
-.btn {
-  border: none;
-
-  border-radius: 8px;
-
-  padding: 13px 18px;
-
-  font-size: 15px;
-
-  font-weight: 600;
-
-  cursor: pointer;
-
-  transition:
-    transform 0.15s,
-    opacity 0.15s;
-
-  display: flex;
-
-  align-items: center;
-
-  justify-content: center;
-
-  gap: 8px;
-
-  min-width: 180px;
-
-  &:hover:not(:disabled) {
-    transform: translateY(-1px);
-  }
-
-  &:disabled {
-    cursor: not-allowed;
-
-    opacity: 0.5;
-  }
-}
-
-.btn-primary {
-  background: #2563eb;
-
-  color: white;
-}
-
-.btn-success {
-  background: #16a34a;
-
-  color: white;
-}
-
-.btn-secondary {
-  background: #6b7280;
-
-  color: white;
-}
-
-.btn-outline {
-  background: white;
-
-  color: #374151;
-
-  border: 1px solid #d1d5db;
-}
-
-.disabled {
-  opacity: 0.5;
-
-  cursor: not-allowed;
-}
-
-
-// ==========================================
-// UPLOAD
-// ==========================================
-
-.upload-status {
-  margin-top: 25px;
-
-  text-align: center;
-
-  color: #374151;
-}
-
-.spinner {
-  width: 35px;
-
-  height: 35px;
-
-  margin: 0 auto 10px;
-
-  border: 4px solid #e5e7eb;
-
-  border-top-color: #2563eb;
-
-  border-radius: 50%;
-
-  animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-
-  to {
-    transform: rotate(360deg);
-  }
-
-}
-
-
-// ==========================================
-// MENSAJES
-// ==========================================
-
-.message {
-  margin-top: 20px;
-
-  padding: 14px;
-
-  border-radius: 8px;
-
-  text-align: center;
-}
-
-.success-message {
-  background: #dcfce7;
-
-  color: #166534;
-}
-
-.error-message {
-  background: #fee2e2;
-
-  color: #991b1b;
-}
-
-
-// ==========================================
-// RESULTADO
-// ==========================================
-
-.result {
-  margin-top: 25px;
-
-  padding-top: 20px;
-
-  border-top: 1px solid #e5e7eb;
-
-  h3 {
-    margin-top: 0;
-  }
-
-  a {
-    color: #2563eb;
+    color: $gold;
 
     font-weight: 600;
-  }
-}
 
-.url-box {
-  margin-top: 10px;
+    margin-bottom: 10px;
 
-  padding: 10px;
-
-  background: #f3f4f6;
-
-  border-radius: 6px;
-
-  font-size: 12px;
-
-  word-break: break-all;
-
-  color: #4b5563;
 }
 
 
-// ==========================================
-// CANVAS OCULTO
-// ==========================================
+.header h1 {
+
+    margin: 0;
+
+    font-family:
+        'Great Vibes',
+        cursive;
+
+    font-size: 48px;
+
+    font-weight: 400;
+
+    color: $text;
+
+    line-height: 1.1;
+
+}
+
+
+.header p {
+
+    margin: 12px auto 0;
+
+    max-width: 380px;
+
+    font-size: 13px;
+
+    line-height: 1.7;
+
+    color: $text-light;
+
+}
+
+
+/* ==========================================
+   DIVISOR
+========================================== */
+
+.divider {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 12px;
+
+    margin: 17px 0;
+
+    color: $gold;
+
+    font-size: 13px;
+
+}
+
+
+.divider span {
+
+    width: 60px;
+
+    height: 1px;
+
+    background: $border;
+
+}
+
+
+/* ==========================================
+   CÁMARA
+========================================== */
+
+.camera-container {
+
+    position: relative;
+
+    overflow: hidden;
+
+    border-radius: 6px;
+
+    background: #222;
+
+    border: 1px solid $border;
+
+    box-shadow:
+        0 10px 30px rgba(0, 0, 0, 0.12);
+
+}
+
+
+.camera-container video {
+
+    display: block;
+
+    width: 100%;
+
+    height: auto;
+
+    min-height: 300px;
+
+    object-fit: cover;
+
+}
+
+
+/* ==========================================
+   OVERLAY
+========================================== */
+
+.camera-overlay {
+
+    position: absolute;
+
+    inset: 0;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    pointer-events: none;
+
+}
+
+
+.camera-frame {
+
+    width: 75%;
+
+    height: 70%;
+
+    border: 1px solid rgba(255, 255, 255, 0.75);
+
+    border-radius: 4px;
+
+    box-shadow:
+        0 0 0 9999px rgba(0, 0, 0, 0.08);
+
+}
+
+
+/* ==========================================
+   CANVAS
+========================================== */
 
 .hidden-canvas {
-  display: none;
+
+    display: none;
 }
 
 
-// ==========================================
-// RESPONSIVE
-// ==========================================
+/* ==========================================
+   PREVISUALIZACIÓN
+========================================== */
 
-@media (max-width: 600px) {
+.preview-container {
 
-  .photo-container {
-    padding: 15px;
+    text-align: center;
 
-    align-items: flex-start;
-  }
+    margin-bottom: 30px;
 
-  .photo-card {
-    padding: 20px;
+}
 
-    margin-top: 15px;
-  }
 
-  .header {
+.preview-title {
 
-    h1 {
-      font-size: 23px;
-    }
+    font-family:
+        'Great Vibes',
+        cursive;
 
-  }
+    font-size: 25px;
 
-  .actions {
+    color: $gold-dark;
+
+    margin-bottom: 15px;
+
+}
+
+
+.preview-title span {
+
+    font-family: sans-serif;
+
+    font-size: 11px;
+
+    margin: 0 7px;
+
+}
+
+
+.preview-image {
+
+    width: 100%;
+
+    max-height: 480px;
+
+    object-fit: contain;
+
+    border-radius: 5px;
+
+    border: 8px solid $white;
+
+    outline: 1px solid $border;
+
+    box-shadow:
+        0 10px 30px rgba(70, 50, 30, 0.15);
+
+}
+
+
+/* ==========================================
+   BOTONES
+========================================== */
+
+.actions {
+
+    display: flex;
 
     flex-direction: column;
 
-    .btn {
-      width: 100%;
+    gap: 12px;
+
+    margin-top: 25px;
+
+}
+
+
+.btn {
+
+    min-height: 52px;
+
+    border-radius: 4px;
+
+    border: 1px solid transparent;
+
+    font-family:
+        'Montserrat',
+        sans-serif;
+
+    font-size: 12px;
+
+    font-weight: 500;
+
+    letter-spacing: 0.7px;
+
+    cursor: pointer;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 10px;
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease;
+
+}
+
+
+.btn:not(:disabled):hover {
+
+    transform: translateY(-2px);
+
+}
+
+
+.btn:disabled {
+
+    opacity: 0.55;
+
+    cursor: not-allowed;
+
+}
+
+
+/* ==========================================
+   BOTÓN PRINCIPAL
+========================================== */
+
+.btn-primary {
+
+    background: $gold;
+
+    color: white;
+
+    box-shadow:
+        0 8px 18px rgba(184, 154, 103, 0.25);
+
+}
+
+
+.btn-primary:hover {
+
+    background: $gold-dark;
+
+}
+
+
+/* ==========================================
+   BOTÓN CAPTURA
+========================================== */
+
+.btn-capture {
+
+    background: $text;
+
+    color: white;
+
+}
+
+
+.capture-circle {
+
+    width: 30px;
+
+    height: 30px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+}
+
+
+/* ==========================================
+   GALERÍA
+========================================== */
+
+.btn-secondary {
+
+    background: transparent;
+
+    color: $text;
+
+    border-color: $border;
+
+}
+
+
+.btn-secondary:hover {
+
+    background: $cream;
+
+}
+
+
+/* ==========================================
+   OUTLINE
+========================================== */
+
+.btn-outline {
+
+    background: transparent;
+
+    color: $gold-dark;
+
+    border-color: $gold;
+
+}
+
+
+.btn-outline:hover {
+
+    background: rgba(184, 154, 103, 0.08);
+
+}
+
+
+/* ==========================================
+   ICONOS
+========================================== */
+
+.btn-icon {
+
+    font-size: 18px;
+
+}
+
+
+/* ==========================================
+   ESTADO SUBIDA
+========================================== */
+
+.upload-status {
+
+    margin-top: 25px;
+
+    text-align: center;
+
+    padding: 20px;
+
+    border-top: 1px solid $border;
+
+    border-bottom: 1px solid $border;
+
+}
+
+
+.upload-status p {
+
+    margin: 12px 0 5px;
+
+    font-size: 13px;
+
+    color: $text;
+
+}
+
+
+.upload-status small {
+
+    color: $text-light;
+
+    font-size: 11px;
+
+}
+
+
+/* ==========================================
+   SPINNER
+========================================== */
+
+.spinner {
+
+    width: 28px;
+
+    height: 28px;
+
+    margin: auto;
+
+    border-radius: 50%;
+
+    border: 3px solid $border;
+
+    border-top-color: $gold;
+
+    animation:
+        spin 0.9s linear infinite;
+
+}
+
+
+@keyframes spin {
+
+    to {
+        transform: rotate(360deg);
     }
 
-  }
+}
+
+
+/* ==========================================
+   MENSAJES
+========================================== */
+
+.message {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 14px;
+
+    margin-top: 25px;
+
+    padding: 16px;
+
+    border-radius: 4px;
+
+    font-size: 12px;
+
+}
+
+
+.message-icon {
+
+    min-width: 32px;
+
+    height: 32px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 50%;
+
+}
+
+
+.message strong {
+
+    display: block;
+
+    margin-bottom: 3px;
+
+    font-size: 12px;
+
+}
+
+
+.message span {
+
+    display: block;
+
+    font-size: 11px;
+
+    color: $text-light;
+
+}
+
+
+.success-message {
+
+    background: rgba(108, 139, 110, 0.08);
+
+    border: 1px solid rgba(108, 139, 110, 0.2);
+
+}
+
+
+.success-message .message-icon {
+
+    background: rgba(108, 139, 110, 0.14);
+
+    color: $success;
+
+}
+
+
+.error-message {
+
+    background: rgba(167, 101, 101, 0.08);
+
+    border: 1px solid rgba(167, 101, 101, 0.2);
+
+}
+
+
+.error-message .message-icon {
+
+    background: rgba(167, 101, 101, 0.14);
+
+    color: $error;
+
+}
+
+
+/* ==========================================
+   RESULTADO
+========================================== */
+
+.result {
+
+    margin-top: 25px;
+
+    text-align: center;
+
+}
+
+
+.result-line {
+
+    width: 60px;
+
+    height: 1px;
+
+    background: $gold;
+
+    margin: 0 auto 15px;
+
+}
+
+
+.result p {
+
+    font-size: 11px;
+
+    color: $text-light;
+
+}
+
+
+.result a {
+
+    display: inline-block;
+
+    margin-top: 5px;
+
+    color: $gold-dark;
+
+    text-decoration: none;
+
+    font-size: 12px;
+
+    font-weight: 600;
+
+}
+
+
+.result a:hover {
+
+    text-decoration: underline;
+
+}
+
+
+.url-box {
+
+    margin-top: 12px;
+
+    padding: 10px;
+
+    background: $cream;
+
+    border: 1px solid $border;
+
+    font-size: 9px;
+
+    word-break: break-all;
+
+    color: $text-light;
+
+}
+
+
+/* ==========================================
+   FOOTER
+========================================== */
+
+.footer {
+
+    margin-top: 35px;
+
+    padding-top: 20px;
+
+    border-top: 1px solid $border;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 10px;
+
+    font-family:
+        'Great Vibes',
+        cursive;
+
+    font-size: 20px;
+
+    color: $text-light;
+
+}
+
+
+.footer-heart {
+
+    color: $gold;
+
+    font-family: sans-serif;
+
+    font-size: 14px;
+
+}
+
+.wedding-date {
+
+    margin-top: 8px;
+
+    font-family:
+        'Montserrat',
+        sans-serif;
+
+    font-size: 12px;
+
+    letter-spacing: 2px;
+
+    color: $gold-dark;
+
+    text-transform: uppercase;
+
+}
+
+/* ==========================================
+   RESPONSIVE
+========================================== */
+
+@media (max-width: 600px) {
+
+    .wedding-page {
+
+        padding: 15px;
+
+    }
+
+
+    .photo-card {
+
+        padding: 35px 20px;
+
+    }
+
+
+    .photo-card::before {
+
+        inset: 8px;
+
+    }
+
+
+    .header h1 {
+
+        font-size: 40px;
+
+    }
+
+
+    .header p {
+
+        font-size: 12px;
+
+    }
+
+
+    .camera-container video {
+
+        min-height: 250px;
+
+    }
 
 }
