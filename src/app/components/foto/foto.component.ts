@@ -1,3 +1,4 @@
+
 import {
   Component,
   ElementRef,
@@ -58,6 +59,10 @@ export class FotoComponent implements OnDestroy {
 
   errorMessage = '';
 
+  // environment = cámara trasera
+  // user = cámara frontal
+  cameraFacingMode: 'user' | 'environment' = 'environment';
+
 
   // ==========================================
   // ACTIVAR CÁMARA
@@ -65,78 +70,85 @@ export class FotoComponent implements OnDestroy {
 
   async startCamera(): Promise<void> {
 
+    if (this.uploading) {
+      return;
+    }
+
     this.clearMessages();
 
     this.cameraReady = false;
 
     try {
 
-      // Si ya existe una cámara activa,
-      // primero la detenemos.
+      // Detener cualquier transmisión anterior.
       this.stopCamera();
 
+      // Solicitar la cámara seleccionada.
       this.stream =
         await navigator.mediaDevices.getUserMedia({
 
           video: {
-            facingMode: 'environment'
+            facingMode: {
+              ideal: this.cameraFacingMode
+            }
           },
 
           audio: false
 
         });
 
-
       this.cameraActive = true;
 
-
-      // Esperamos a que Angular renderice
-      // nuevamente el elemento <video>.
+      // Esperar a que Angular renderice el video.
       setTimeout(() => {
 
-        if (!this.video) {
+        if (!this.video || !this.stream) {
+          this.errorMessage =
+            'No fue posible preparar la cámara.';
+
+          this.stopCamera();
           return;
         }
 
         const videoElement =
           this.video.nativeElement;
 
-        videoElement.srcObject =
-          this.stream;
+        // Registrar el evento antes de asignar el stream.
+        videoElement.onloadedmetadata = async () => {
 
+          try {
 
-        // Esperamos a que el navegador
-        // tenga realmente disponible el video.
-        videoElement.onloadedmetadata =
-          async () => {
+            await videoElement.play();
 
-            try {
+            console.log(
+              'Cámara lista:',
+              videoElement.videoWidth,
+              videoElement.videoHeight,
+              'Modo:',
+              this.cameraFacingMode
+            );
 
-              await videoElement.play();
+            this.cameraReady = true;
 
-              console.log(
-                'Cámara lista:',
-                videoElement.videoWidth,
-                videoElement.videoHeight
-              );
+          } catch (error) {
 
-              this.cameraReady = true;
+            console.error(
+              'Error al iniciar reproducción:',
+              error
+            );
 
-            } catch (error) {
+            this.errorMessage =
+              'No fue posible iniciar la cámara.';
 
-              console.error(
-                'Error al iniciar reproducción:',
-                error
-              );
+            this.stopCamera();
 
-              this.errorMessage =
-                'No fue posible iniciar la cámara.';
+          }
 
-            }
+        };
 
-          };
+        videoElement.srcObject = this.stream;
 
-      });
+      }, 0);
 
     } catch (error) {
 
@@ -146,13 +158,34 @@ export class FotoComponent implements OnDestroy {
       );
 
       this.cameraActive = false;
-
       this.cameraReady = false;
 
       this.errorMessage =
         'No fue posible acceder a la cámara. Verifica los permisos del navegador.';
 
     }
+
+  }
+
+
+  // ==========================================
+  // CAMBIAR ENTRE CÁMARA FRONTAL Y TRASERA
+  // ==========================================
+
+  async cambiarCamara(): Promise<void> {
+
+    if (this.uploading || !this.cameraActive) {
+      return;
+    }
+
+    // Alternar la cámara seleccionada.
+    this.cameraFacingMode =
+      this.cameraFacingMode === 'environment'
+        ? 'user'
+        : 'environment';
+
+    // Reiniciar la cámara con el nuevo modo.
+    await this.startCamera();
 
   }
 
@@ -165,11 +198,7 @@ export class FotoComponent implements OnDestroy {
 
     this.clearMessages();
 
-
-    // ==========================================
-    // VALIDAR CÁMARA
-    // ==========================================
-
+    // Validar cámara.
     if (!this.cameraReady) {
 
       this.errorMessage =
@@ -178,7 +207,6 @@ export class FotoComponent implements OnDestroy {
       return;
 
     }
-
 
     if (!this.video || !this.canvas) {
 
@@ -189,18 +217,13 @@ export class FotoComponent implements OnDestroy {
 
     }
 
-
     const video =
       this.video.nativeElement;
 
     const canvas =
       this.canvas.nativeElement;
 
-
-    // ==========================================
-    // VALIDAR DIMENSIONES DEL VIDEO
-    // ==========================================
-
+    // Validar dimensiones.
     if (
       video.videoWidth === 0 ||
       video.videoHeight === 0
@@ -213,21 +236,12 @@ export class FotoComponent implements OnDestroy {
 
     }
 
-
-    // ==========================================
-    // CONFIGURAR CANVAS
-    // ==========================================
-
-    canvas.width =
-      video.videoWidth;
-
-    canvas.height =
-      video.videoHeight;
-
+    // Configurar canvas.
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
 
     const context =
       canvas.getContext('2d');
-
 
     if (!context) {
 
@@ -238,11 +252,7 @@ export class FotoComponent implements OnDestroy {
 
     }
 
-
-    // ==========================================
-    // CAPTURAR FRAME
-    // ==========================================
-
+    // Capturar frame.
     context.drawImage(
       video,
       0,
@@ -251,30 +261,17 @@ export class FotoComponent implements OnDestroy {
       canvas.height
     );
 
-
-    // ==========================================
-    // CONVERTIR CANVAS A BLOB
-    // ==========================================
-
+    // Convertir canvas a Blob.
     const blob =
       await new Promise<Blob | null>((resolve) => {
 
         canvas.toBlob(
-          (result) => {
-
-            resolve(result);
-
-          },
+          (result) => resolve(result),
           'image/jpeg',
           0.90
         );
 
       });
-
-
-    // ==========================================
-    // VALIDAR BLOB
-    // ==========================================
 
     if (!blob) {
 
@@ -285,11 +282,7 @@ export class FotoComponent implements OnDestroy {
 
     }
 
-
-    // ==========================================
-    // CREAR FILE
-    // ==========================================
-
+    // Crear archivo.
     const file =
       new File(
         [blob],
@@ -299,41 +292,21 @@ export class FotoComponent implements OnDestroy {
         }
       );
 
-
     console.log(
       'Fotografía creada:',
       file
     );
 
+    this.selectedFile = file;
 
-    // ==========================================
-    // GUARDAR ARCHIVO
-    // ==========================================
-
-    this.selectedFile =
-      file;
-
-
-    // ==========================================
-    // MOSTRAR VISTA PREVIA
-    // ==========================================
-
+    // Mostrar vista previa.
     this.imagePreview =
       URL.createObjectURL(blob);
 
-
-    // ==========================================
-    // DETENER CÁMARA
-    // ==========================================
-
+    // Detener cámara.
     this.stopCamera();
 
-
-    // ==========================================
-    // SUBIR A CLOUDINARY
-    // ESPERAMOS A QUE TERMINE
-    // ==========================================
-
+    // Subir fotografía.
     await this.uploadToCloudinary(file);
 
   }
@@ -349,60 +322,41 @@ export class FotoComponent implements OnDestroy {
 
     this.clearMessages();
 
-
     const input =
       event.target as HTMLInputElement;
-
 
     if (
       !input.files ||
       input.files.length === 0
     ) {
-
       return;
-
     }
-
 
     const file =
       input.files[0];
-
-
-    // ==========================================
-    // VALIDAR IMAGEN
-    // ==========================================
 
     if (!file.type.startsWith('image/')) {
 
       this.errorMessage =
         'El archivo seleccionado no es una imagen.';
 
+      input.value = '';
       return;
 
     }
 
+    // Guardar archivo.
+    this.selectedFile = file;
 
-    // ==========================================
-    // GUARDAR ARCHIVO
-    // ==========================================
-
-    this.selectedFile =
-      file;
-
-
-    // ==========================================
-    // VISTA PREVIA
-    // ==========================================
-
+    // Vista previa.
     this.imagePreview =
       URL.createObjectURL(file);
 
-
-    // ==========================================
-    // SUBIR A CLOUDINARY
-    // ==========================================
-
+    // Subir a Cloudinary.
     await this.uploadToCloudinary(file);
+
+    // Permitir seleccionar nuevamente el mismo archivo.
+    input.value = '';
 
   }
 
@@ -421,47 +375,29 @@ export class FotoComponent implements OnDestroy {
 
     this.uploadedImageUrl = null;
 
-
     const url =
       `https://api.cloudinary.com/v1_1/${this.cloudName}/image/upload`;
-
-
-    // ==========================================
-    // FORM DATA
-    // ==========================================
 
     const formData =
       new FormData();
 
-
-    formData.append(
-      'file',
-      file
-    );
-
+    formData.append('file', file);
 
     formData.append(
       'upload_preset',
       this.uploadPreset
     );
 
-
     formData.append(
       'folder',
       this.folder
     );
-
 
     try {
 
       console.log(
         'Iniciando subida a Cloudinary...'
       );
-
-
-      // ==========================================
-      // ESPERAR RESPUESTA
-      // ==========================================
 
       const response =
         await fetch(
@@ -471,11 +407,6 @@ export class FotoComponent implements OnDestroy {
             body: formData
           }
         );
-
-
-      // ==========================================
-      // VALIDAR RESPUESTA
-      // ==========================================
 
       if (!response.ok) {
 
@@ -493,32 +424,19 @@ export class FotoComponent implements OnDestroy {
 
       }
 
-
-      // ==========================================
-      // OBTENER RESULTADO
-      // ==========================================
-
       const result =
         await response.json();
-
 
       console.log(
         'Respuesta Cloudinary:',
         result
       );
 
-
-      // ==========================================
-      // GUARDAR URL
-      // ==========================================
-
       this.uploadedImageUrl =
         result.secure_url;
 
-
       this.message =
         'La fotografía fue subida correctamente.';
-
 
     } catch (error) {
 
@@ -527,10 +445,8 @@ export class FotoComponent implements OnDestroy {
         error
       );
 
-
       this.errorMessage =
         'No fue posible subir la fotografía a Cloudinary.';
-
 
     } finally {
 
@@ -551,23 +467,24 @@ export class FotoComponent implements OnDestroy {
 
       this.stream
         .getTracks()
-        .forEach(
-          track => track.stop()
-        );
+        .forEach(track => track.stop());
 
       this.stream = null;
 
     }
 
-
-    // Limpiar srcObject
     if (this.video) {
 
-      this.video.nativeElement.srcObject =
-        null;
+      const videoElement =
+        this.video.nativeElement;
+
+      videoElement.pause();
+
+      videoElement.onloadedmetadata = null;
+
+      videoElement.srcObject = null;
 
     }
-
 
     this.cameraActive = false;
 
@@ -584,8 +501,7 @@ export class FotoComponent implements OnDestroy {
 
     this.stopCamera();
 
-
-    // Liberar URL anterior
+    // Liberar URL anterior.
     if (this.imagePreview) {
 
       URL.revokeObjectURL(
@@ -594,13 +510,11 @@ export class FotoComponent implements OnDestroy {
 
     }
 
-
     this.imagePreview = null;
 
     this.uploadedImageUrl = null;
 
     this.selectedFile = null;
-
 
     this.clearMessages();
 
@@ -627,7 +541,6 @@ export class FotoComponent implements OnDestroy {
   ngOnDestroy(): void {
 
     this.stopCamera();
-
 
     if (this.imagePreview) {
 
