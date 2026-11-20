@@ -1,0 +1,182 @@
+<div class="album-page">
+
+  <!-- Encabezado -->
+  <header class="album-header">
+
+    <div class="header-decoration">✦</div>
+
+    <span class="eyebrow">NUESTRO DÍA ESPECIAL</span>
+
+    <h1>Gerson <span>&</span> Rosmery</h1>
+
+    <div class="gold-divider">
+      <span></span>
+      <i>♥</i>
+      <span></span>
+    </div>
+
+    <p class="wedding-date">13 de Diciembre de 2026</p>
+
+    <h2>Nuestros recuerdos</h2>
+
+    <p class="header-description">
+      Cada fotografía guarda un instante, una sonrisa
+      y un recuerdo que queremos conservar para siempre.
+    </p>
+
+  </header>
+
+  <!-- Resumen -->
+  <section class="album-summary">
+
+    <div class="photo-counter">
+      <div class="counter-icon">♡</div>
+
+      <div>
+        <strong>{{ fotos.length }}</strong>
+        <span>Fotografías compartidas</span>
+      </div>
+    </div>
+
+    <button class="share-button" (click)="compartirAlbum()">
+      <span>↗</span>
+      Compartir álbum
+    </button>
+
+  </section>
+
+  <!-- Galería -->
+  <main class="gallery-container">
+
+    <div class="gallery-heading">
+      <div>
+        <span class="section-label">MOMENTOS INOLVIDABLES</span>
+        <h3>La historia en imágenes</h3>
+      </div>
+
+      <div class="gallery-filters">
+        <button
+          [class.active]="filtro === 'todas'"
+          (click)="cambiarFiltro('todas')">
+          Todas
+        </button>
+
+        <button
+          [class.active]="filtro === 'recientes'"
+          (click)="cambiarFiltro('recientes')">
+          Recientes
+        </button>
+      </div>
+    </div>
+
+    <!-- Cargando -->
+    <div class="loading-state" *ngIf="cargando">
+      <div class="spinner"></div>
+      <p>Preparando nuestros recuerdos...</p>
+    </div>
+
+    <!-- Error -->
+    <div class="empty-state" *ngIf="!cargando && error">
+      <div class="empty-icon">♡</div>
+      <h3>No pudimos cargar las fotografías</h3>
+      <p>Por favor, intenta nuevamente en unos momentos.</p>
+
+      <button class="retry-button" (click)="obtenerFotos()">
+        Volver a intentar
+      </button>
+    </div>
+
+    <!-- Sin fotografías -->
+    <div class="empty-state"
+      *ngIf="!cargando && !error && fotos.length === 0">
+
+      <div class="empty-icon">♡</div>
+
+      <h3>¡Aquí comenzarán nuestros recuerdos!</h3>
+
+      <p>
+        Todavía no hay fotografías compartidas.
+        Sé de los primeros en agregar una.
+      </p>
+
+      <button class="retry-button" (click)="volverASubirFotos()">
+        Compartir una fotografía
+      </button>
+
+    </div>
+
+    <!-- Fotografías -->
+    <div class="photo-grid"
+      *ngIf="!cargando && !error && fotosMostradas.length > 0">
+
+      <div class="photo-item"
+        *ngFor="let foto of fotosMostradas"
+        (click)="seleccionarFoto(foto)">
+
+        <img
+          [src]="foto.secure_url"
+          alt="Recuerdo de nuestra boda"
+          loading="lazy">
+
+        <div class="photo-overlay">
+          <span>♡</span>
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- Invitación a compartir -->
+  <section class="share-section">
+
+    <div class="share-heart">♥</div>
+
+    <h3>¡Tú también eres parte de nuestra historia!</h3>
+
+    <p>
+      Ayúdanos a guardar cada sonrisa y cada momento especial.
+      Comparte tus fotografías con nosotros.
+    </p>
+
+    <button class="upload-button" (click)="volverASubirFotos()">
+      Compartir mis fotografías
+      <span>→</span>
+    </button>
+
+  </section>
+
+  <!-- Pie de página -->
+  <footer class="album-footer">
+    <div class="footer-divider">♥</div>
+
+    <p>Con amor,</p>
+
+    <h3>Gerson & Rosmery</h3>
+
+    <span>13 · 12 · 2026</span>
+
+    <small>Un día, una promesa, infinitos recuerdos.</small>
+  </footer>
+
+  <!-- Visor de fotografía -->
+  <div class="lightbox"
+    *ngIf="fotoSeleccionada"
+    (click)="cerrarFoto()">
+
+    <button
+      class="close-lightbox"
+      aria-label="Cerrar fotografía"
+      (click)="cerrarFoto()">
+      ×
+    </button>
+
+    <img
+      [src]="fotoSeleccionada.secure_url"
+      alt="Fotografía ampliada"
+      (click)="$event.stopPropagation()">
+
+  </div>
+
+</div>

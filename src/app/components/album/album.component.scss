@@ -1,0 +1,472 @@
+@import url('https://fonts.googleapis.com/css2?family=Great+Vibes&family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600&display=swap');
+
+:host {
+  display: block;
+  font-family: 'Montserrat', sans-serif;
+  color: #51483e;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.album-page {
+  min-height: 100vh;
+  background: #faf7f1;
+  padding: 0 20px;
+}
+
+/* ENCABEZADO */
+
+.album-header {
+  max-width: 850px;
+  margin: auto;
+  padding: 75px 20px 45px;
+  text-align: center;
+}
+
+.header-decoration {
+  color: #b89a67;
+  font-size: 25px;
+  margin-bottom: 18px;
+}
+
+.eyebrow,
+.section-label {
+  color: #a38b64;
+  font-size: 10px;
+  letter-spacing: 4px;
+  font-weight: 600;
+}
+
+.album-header h1 {
+  font-family: 'Great Vibes', cursive;
+  font-size: clamp(55px, 9vw, 88px);
+  font-weight: 400;
+  color: #8f7955;
+  margin: 15px 0;
+}
+
+.album-header h1 span {
+  font-size: 0.7em;
+  color: #c3a878;
+}
+
+.gold-divider {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  margin: 20px auto;
+}
+
+.gold-divider span {
+  width: 65px;
+  height: 1px;
+  background: #c8b18a;
+}
+
+.gold-divider i {
+  color: #b89a67;
+  font-style: normal;
+}
+
+.wedding-date {
+  font-size: 11px;
+  letter-spacing: 3px;
+  color: #817665;
+  text-transform: uppercase;
+}
+
+.album-header h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 34px;
+  font-weight: 400;
+  margin: 45px 0 12px;
+  color: #51483e;
+}
+
+.header-description {
+  max-width: 490px;
+  margin: auto;
+  font-size: 13px;
+  line-height: 1.9;
+  color: #887f73;
+}
+
+/* RESUMEN */
+
+.album-summary {
+  max-width: 1100px;
+  margin: 0 auto 55px;
+  padding: 18px 22px;
+  border-top: 1px solid #e8dfd1;
+  border-bottom: 1px solid #e8dfd1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+}
+
+.photo-counter {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+}
+
+.counter-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #f0e8da;
+  display: grid;
+  place-items: center;
+  color: #a38b64;
+  font-size: 22px;
+}
+
+.photo-counter strong,
+.photo-counter span {
+  display: block;
+}
+
+.photo-counter strong {
+  font-family: 'Playfair Display', serif;
+  font-size: 21px;
+  color: #746044;
+}
+
+.photo-counter span {
+  font-size: 10px;
+  color: #938879;
+}
+
+.share-button,
+.upload-button,
+.retry-button {
+  border: none;
+  cursor: pointer;
+  font-family: 'Montserrat', sans-serif;
+  transition: 0.25s;
+}
+
+.share-button {
+  padding: 12px 20px;
+  background: #a88e63;
+  color: white;
+  border-radius: 3px;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+}
+
+.share-button:hover,
+.upload-button:hover,
+.retry-button:hover {
+  background: #806b49;
+  transform: translateY(-2px);
+}
+
+.share-button span {
+  margin-right: 7px;
+}
+
+/* GALERÍA */
+
+.gallery-container {
+  max-width: 1100px;
+  margin: auto;
+  padding-bottom: 65px;
+}
+
+.gallery-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 20px;
+  margin-bottom: 28px;
+}
+
+.gallery-heading h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 28px;
+  font-weight: 400;
+  margin: 9px 0 0;
+}
+
+.gallery-filters {
+  display: flex;
+  gap: 8px;
+}
+
+.gallery-filters button {
+  background: transparent;
+  border: 1px solid #ded3c2;
+  padding: 9px 16px;
+  border-radius: 20px;
+  font-size: 10px;
+  color: #827766;
+  cursor: pointer;
+}
+
+.gallery-filters button.active {
+  background: #a88e63;
+  color: white;
+  border-color: #a88e63;
+}
+
+.photo-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+
+.photo-item {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  cursor: pointer;
+  background: #eee6da;
+  border-radius: 3px;
+}
+
+.photo-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.5s ease;
+}
+
+.photo-item:hover img {
+  transform: scale(1.06);
+}
+
+.photo-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(55, 45, 33, 0.2);
+  opacity: 0;
+  transition: 0.3s;
+  color: white;
+  font-size: 35px;
+}
+
+.photo-item:hover .photo-overlay {
+  opacity: 1;
+}
+
+/* CARGA Y ESTADOS VACÍOS */
+
+.loading-state,
+.empty-state {
+  text-align: center;
+  padding: 65px 20px;
+  color: #8d8171;
+}
+
+.spinner {
+  width: 35px;
+  height: 35px;
+  border: 3px solid #e8dfd1;
+  border-top-color: #a88e63;
+  border-radius: 50%;
+  animation: girar 0.8s linear infinite;
+  margin: auto auto 18px;
+}
+
+@keyframes girar {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.empty-icon {
+  font-size: 42px;
+  color: #b89a67;
+  margin-bottom: 15px;
+}
+
+.empty-state h3 {
+  font-family: 'Playfair Display', serif;
+  font-weight: 400;
+  font-size: 23px;
+  color: #665844;
+}
+
+.empty-state p {
+  font-size: 12px;
+  line-height: 1.8;
+}
+
+.retry-button {
+  margin-top: 15px;
+  padding: 12px 22px;
+  color: white;
+  background: #a88e63;
+  border-radius: 3px;
+}
+
+/* INVITACIÓN A COMPARTIR */
+
+.share-section {
+  max-width: 750px;
+  margin: 0 auto 70px;
+  padding: 50px 25px;
+  text-align: center;
+  background: #f1eadf;
+  border: 1px solid #e8ddcc;
+}
+
+.share-heart {
+  color: #b89a67;
+  font-size: 23px;
+}
+
+.share-section h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 26px;
+  font-weight: 400;
+  margin: 15px 0;
+}
+
+.share-section p {
+  max-width: 470px;
+  margin: auto;
+  color: #82796c;
+  font-size: 12px;
+  line-height: 1.9;
+}
+
+.upload-button {
+  margin-top: 25px;
+  padding: 15px 25px;
+  background: #a88e63;
+  color: white;
+  font-size: 11px;
+  border-radius: 3px;
+}
+
+.upload-button span {
+  margin-left: 12px;
+}
+
+/* PIE DE PÁGINA */
+
+.album-footer {
+  text-align: center;
+  padding: 0 20px 45px;
+}
+
+.footer-divider {
+  color: #b89a67;
+  margin-bottom: 15px;
+}
+
+.album-footer p {
+  font-size: 11px;
+  color: #938879;
+}
+
+.album-footer h3 {
+  font-family: 'Great Vibes', cursive;
+  font-size: 42px;
+  font-weight: 400;
+  color: #967d56;
+  margin: 5px 0;
+}
+
+.album-footer span,
+.album-footer small {
+  display: block;
+  color: #938879;
+  font-size: 10px;
+  letter-spacing: 2px;
+}
+
+.album-footer small {
+  margin-top: 18px;
+  letter-spacing: 0.5px;
+}
+
+/* VISOR AMPLIADO */
+
+.lightbox {
+  position: fixed;
+  z-index: 9999;
+  inset: 0;
+  background: rgba(25, 22, 19, 0.94);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 50px 20px;
+}
+
+.lightbox img {
+  max-width: 100%;
+  max-height: 90vh;
+  object-fit: contain;
+  border-radius: 3px;
+}
+
+.close-lightbox {
+  position: absolute;
+  top: 15px;
+  right: 25px;
+  color: white;
+  background: transparent;
+  border: none;
+  font-size: 40px;
+  cursor: pointer;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 700px) {
+
+  .album-page {
+    padding: 0 13px;
+  }
+
+  .album-header {
+    padding: 55px 10px 35px;
+  }
+
+  .album-header h2 {
+    font-size: 29px;
+  }
+
+  .album-summary {
+    margin-bottom: 40px;
+    padding: 15px 5px;
+  }
+
+  .share-button {
+    padding: 11px 13px;
+    font-size: 9px;
+  }
+
+  .gallery-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .gallery-heading h3 {
+    font-size: 25px;
+  }
+
+  .photo-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .share-section {
+    padding: 40px 18px;
+  }
+
+  .share-section h3 {
+    font-size: 23px;
+  }
+}
